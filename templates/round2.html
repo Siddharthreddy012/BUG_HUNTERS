@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}Round 2: Bug Bounty – Problem {{ current_number }} of {{ total_questions }}{% endblock %}
+
+{% block content %}
+<!-- Examination Header -->
+<div class="exam-header" data-exam-round="2">
+    <div class="exam-title-badge">
+        <span class="badge-cyber" style="border-color: #f59e0b; color: #f59e0b;">ROUND 2</span>
+        <span style="font-weight: 700; color: #fff; font-size: 1.1rem;">Bug Bounty &bull; Error Line Coding</span>
+        <span class="badge-cyber" id="code-lang-indicator" data-lang="{{ selected_language }}" style="text-transform: uppercase;">
+            {{ selected_language }}
+        </span>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 1.5rem;">
+        <!-- Anti-Cheating Violation Badge -->
+        <div id="violation-counter-badge" class="violation-pill {% if violation_count >= comp_settings.max_warning_violations %}flagged{% endif %}">
+            <i class="fas fa-shield-alt"></i> Violations: {{ violation_count }} / {{ comp_settings.max_warning_violations }}
+        </div>
+
+        <!-- Server-Synchronized Countdown Timer -->
+        <div class="timer-box" id="exam-countdown" data-remaining="{{ remaining_seconds }}">
+            <i class="fas fa-stopwatch" style="color: var(--cyber-cyan); font-size: 1.1rem;"></i>
+            <span class="timer-display" id="timer-text">05:00</span>
+        </div>
+    </div>
+</div>
+
+<div style="max-width: 1350px; margin: 1.5rem auto; padding: 0 1.5rem 5rem;">
+    <!-- Problem Header Banner -->
+    <div class="glass-panel" style="padding: 1.5rem 2rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.25rem;">
+                <span style="font-weight: 700; color: var(--cyber-cyan); font-size: 1.1rem;">Challenge {{ current_number }} of {{ total_questions }}</span>
+                <span class="badge-danger">HARD</span>
+            </div>
+            <h2 style="font-size: 1.6rem; color: #fff; font-weight: 800; margin: 0;">{{ challenge.title }}</h2>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase;">Score Value</div>
+            <div style="font-size: 1.5rem; font-weight: 800; color: #fbbf24; font-family: var(--font-mono);">
+                {{ challenge.marks }} Marks
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Workspace Split: Left (Buggy Code & Specs), Right (Code Correction Editor) -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start;">
+        
+        <!-- Left Column: Buggy Snippet & Description -->
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <!-- Problem Description Card -->
+            <div class="glass-panel" style="padding: 1.5rem;">
+                <h4 style="font-size: 1rem; color: #fff; margin-bottom: 0.75rem;">
+                    <i class="fas fa-align-left" style="color: var(--cyber-cyan);"></i> Problem Description
+                </h4>
+                <p style="color: var(--text-muted); line-height: 1.6; font-size: 0.95rem; margin: 0;">
+                    {{ challenge.description }}
+                </p>
+            </div>
+
+            <!-- Buggy Code Snippet with Line Numbers -->
+            <div class="code-window">
+                <div class="code-header">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div class="mac-dots">
+                            <span class="mac-dot dot-red"></span>
+                            <span class="mac-dot dot-yellow"></span>
+                            <span class="mac-dot dot-green"></span>
+                        </div>
+                        <span style="color: #ef4444; font-weight: 600;"><i class="fas fa-bug"></i> Defective Code Snippet (Find the Errors)</span>
+                    </div>
+                    <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-dim);">Read-Only Reference</span>
+                </div>
+                <div class="code-body">
+                    {% for line in line_numbered_code %}
+                        <div class="code-line">
+                            <span class="line-no">{{ line.number }}</span>
+                            <span class="code-text">{{ line.text }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Custom Input Box for Sandbox Testing -->
+            <div class="glass-panel" style="padding: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <label class="form-label" style="margin-bottom: 0; font-size: 0.85rem;">
+                        <i class="fas fa-keyboard" style="color: var(--cyber-cyan);"></i> Standard Input (stdin)
+                    </label>
+                    <span style="font-size: 0.75rem; color: var(--text-dim);">Optional input to test your logic</span>
+                </div>
+                <textarea id="custom-input-box" class="form-control" rows="2" style="font-family: var(--font-mono); font-size: 0.85rem;" placeholder="e.g. test input"></textarea>
+            </div>
+        </div>
+
+        <!-- Right Column: Code Correction Editor & Terminal Console -->
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <form id="exam-form" method="post" action="{% url 'round2' %}">
+                {% csrf_token %}
+                <div class="glass-panel" style="padding: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-code" style="color: #34d399;"></i>
+                            <span style="font-weight: 700; color: #fff; font-size: 0.95rem;">Code Correction Workspace</span>
+                        </div>
+                        <button type="button" id="run-code-btn" class="btn-outline-cyber" onclick="runCodeTest()" style="padding: 0.4rem 1rem; font-size: 0.85rem;">
+                            <i class="fas fa-play"></i> Run Code
+                        </button>
+                    </div>
+
+                    <!-- Editable Code Area -->
+                    <textarea name="submitted_code" class="code-editor-area" spellcheck="false" required>{{ editor_code }}</textarea>
+
+                    <!-- Terminal Output Window -->
+                    <div style="margin-top: 1rem;">
+                        <div style="font-size: 0.78rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 0.4rem;">
+                            <i class="fas fa-terminal"></i> Sandbox Output &amp; Diagnostics
+                        </div>
+                        <div id="console-output" class="console-box">Click 'Run Code' to execute against sandbox test runner...</div>
+                    </div>
+
+                    <!-- Submit / Next Button -->
+                    <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border-glass); display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 0.8rem; color: var(--text-dim);">
+                            <i class="fas fa-shield-alt"></i> Code will be compiled and tested against hidden test cases.
+                        </div>
+                        <button type="submit" class="btn-cyber" style="padding: 0.75rem 2.2rem; font-size: 1rem; background: linear-gradient(135deg, #f59e0b, #d97706);">
+                            {% if current_number == total_questions %}
+                                <i class="fas fa-paper-plane"></i> Finalize Round 2 Submission
+                            {% else %}
+                                Submit &amp; Next Problem <i class="fas fa-arrow-right"></i>
+                            {% endif %}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+

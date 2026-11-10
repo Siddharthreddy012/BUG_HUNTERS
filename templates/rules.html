@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Rules &amp; Regulations – BUG HUNTERS 2026{% endblock %}
+
+{% block content %}
+<div style="max-width: 1050px; margin: 3rem auto; padding: 0 1.5rem 5rem;">
+    <div style="text-align: center; margin-bottom: 3rem;">
+        <span class="badge-cyber">OFFICIAL CONTEST CODE</span>
+        <h1 style="font-size: 2.6rem; font-weight: 800; margin-top: 0.6rem; color: #fff;">
+            Rules &amp; Regulations
+        </h1>
+        <p style="color: var(--text-muted); max-width: 650px; margin: 0.75rem auto 0; font-size: 1.05rem;">
+            Please carefully review the platform instructions, qualification criteria, timer mechanics, and anti-cheating stipulations prior to beginning the competition.
+        </p>
+    </div>
+
+    <!-- Rule Sections -->
+    <div style="display: flex; flex-direction: column; gap: 2rem;">
+        <!-- 1. Eligibility & Registration -->
+        <div class="glass-panel" style="padding: 2.2rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(0, 240, 255, 0.15); display: flex; align-items: center; justify-content: center; color: var(--cyber-cyan);">
+                    <i class="fas fa-id-card"></i>
+                </div>
+                <h3 style="font-size: 1.35rem; color: #fff; margin: 0;">1. Participant Eligibility &amp; Accounts</h3>
+            </div>
+            <ul style="color: var(--text-muted); line-height: 1.7; padding-left: 1.5rem;">
+                <li>The competition is strictly open to enrolled undergraduate and graduate students.</li>
+                <li>Each participant must register with their official College Roll Number, academic email, department, and graduation year.</li>
+                <li>Only one active account is permitted per participant. Duplicate registrations will lead to immediate cancellation of all accounts.</li>
+                <li>Sharing login credentials or switching workstations mid-contest without proctor consent is prohibited.</li>
+            </ul>
+        </div>
+
+        <!-- 2. Sequential Round Progression -->
+        <div class="glass-panel" style="padding: 2.2rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(16, 185, 129, 0.15); display: flex; align-items: center; justify-content: center; color: #34d399;">
+                    <i class="fas fa-step-forward"></i>
+                </div>
+                <h3 style="font-size: 1.35rem; color: #fff; margin: 0;">2. Sequential Round Progression System</h3>
+            </div>
+            <p style="color: var(--text-muted); line-height: 1.7; margin-bottom: 1rem;">
+                BUG HUNTERS operates on a strict server-enforced progressive qualification workflow:
+            </p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                <div style="background: rgba(10, 17, 40, 0.6); padding: 1rem; border-radius: 8px; border-left: 3px solid var(--cyber-cyan);">
+                    <b style="color: #fff;">Round 1 (Code Quest)</b><br>
+                    <span style="font-size: 0.85rem; color: var(--text-dim);">Unlocked by default upon registration. Must score &ge; {{ comp_settings.r1_qualifying_marks }}/15 to qualify for Round 2.</span>
+                </div>
+                <div style="background: rgba(10, 17, 40, 0.6); padding: 1rem; border-radius: 8px; border-left: 3px solid #f59e0b;">
+                    <b style="color: #fff;">Round 2 (Bug Bounty)</b><br>
+                    <span style="font-size: 0.85rem; color: var(--text-dim);">Accessible only after qualifying Round 1. Requires &ge; {{ comp_settings.r2_qualifying_marks }}/25 AND verification by an Administrator.</span>
+                </div>
+                <div style="background: rgba(10, 17, 40, 0.6); padding: 1rem; border-radius: 8px; border-left: 3px solid #a855f7;">
+                    <b style="color: #fff;">Round 3 (Logic Launch)</b><br>
+                    <span style="font-size: 0.85rem; color: var(--text-dim);">Remains locked until Round 2 is verified. Final results published following verification of Round 3.</span>
+                </div>
+            </div>
+            <p style="font-size: 0.85rem; color: #ef4444;">
+                <i class="fas fa-exclamation-circle"></i> Attempting to bypass rounds by manipulating URL parameters will result in an automatic rejection by the server.
+            </p>
+        </div>
+
+        <!-- 3. Timer & Question Mechanics -->
+        <div class="glass-panel" style="padding: 2.2rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(245, 158, 11, 0.15); display: flex; align-items: center; justify-content: center; color: #fbbf24;">
+                    <i class="fas fa-stopwatch"></i>
+                </div>
+                <h3 style="font-size: 1.35rem; color: #fff; margin: 0;">3. Timers &amp; Automatic Saving</h3>
+            </div>
+            <ul style="color: var(--text-muted); line-height: 1.7; padding-left: 1.5rem;">
+                <li><strong>Per-Question Time Limits:</strong>
+                    Round 1 questions receive 1 minute each; Round 2 problems receive 5 minutes each; Round 3 challenges receive 10 minutes each.
+                </li>
+                <li><strong>Server-Side Authority:</strong> The timer begins when the question is loaded and the timestamp is recorded on the server. Refreshing the browser will NOT restore expired time.</li>
+                <li><strong>Automatic Advancement:</strong> When the countdown reaches 00:00, the system automatically saves your active response and advances to the next question.</li>
+                <li><strong>No Backtracking:</strong> To maintain fairness, once you submit or time out on a question, you cannot return to modify your answer.</li>
+            </ul>
+        </div>
+
+        <!-- 4. Anti-Cheating & Tab Switching -->
+        <div class="glass-panel" style="padding: 2.2rem; border-color: rgba(239, 68, 68, 0.3);">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(239, 68, 68, 0.15); display: flex; align-items: center; justify-content: center; color: #f87171;">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3 style="font-size: 1.35rem; color: #fff; margin: 0;">4. Anti-Cheating &amp; Tab-Switching Policy</h3>
+            </div>
+            <p style="color: var(--text-muted); line-height: 1.7; margin-bottom: 1rem;">
+                The platform monitors browser visibility changes and focus losses in real time using the HTML5 Page Visibility API and focus/blur triggers.
+            </p>
+            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.25rem;">
+                <div style="font-weight: 600; color: #fca5a5; margin-bottom: 0.5rem;">Warning Levels:</div>
+                <ul style="color: #fca5a5; font-size: 0.88rem; line-height: 1.6; padding-left: 1.2rem;">
+                    <li><strong>1st Violation:</strong> Cautionary warning notification displayed on screen.</li>
+                    <li><strong>2nd Violation:</strong> Urgent modal warning indicating severe risk of disqualification.</li>
+                    <li><strong>3rd Violation &amp; Above:</strong> The participant account is formally flagged in the proctor audit dashboard for administrative review.</li>
+                </ul>
+            </div>
+            <div style="background: rgba(10, 17, 40, 0.8); border: 1px solid var(--border-glass); border-radius: 8px; padding: 1rem;">
+                <p style="font-size: 0.82rem; color: var(--text-dim); line-height: 1.5; margin: 0;">
+                    <strong style="color: #cbd5e1;">Important Integrity Notice:</strong> Browser-based monitoring mechanisms cannot detect external physical devices, dual-monitor displays, or secondary mobile screens. Physical lab proctors will oversee examination venues, and administrators retain full authority to disqualify participants for infractions.
+                </p>
+            </div>
+        </div>
+
+        <!-- 5. Scoring & Tie-Breaking -->
+        <div class="glass-panel" style="padding: 2.2rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(168, 85, 247, 0.15); display: flex; align-items: center; justify-content: center; color: #c084fc;">
+                    <i class="fas fa-balance-scale"></i>
+                </div>
+                <h3 style="font-size: 1.35rem; color: #fff; margin: 0;">5. Scoring &amp; Tie-Breaking Hierarchy</h3>
+            </div>
+            <ul style="color: var(--text-muted); line-height: 1.7; padding-left: 1.5rem;">
+                <li><strong>Maximum Total Score:</strong> 70 Marks (Round 1: 15 marks, Round 2: 25 marks, Round 3: 30 marks).</li>
+                <li><strong>Tie-Breaking Rule 1:</strong> Highest Total Score across all three rounds.</li>
+                <li><strong>Tie-Breaking Rule 2:</strong> In the event of a tie, the participant with the higher Round 3 (Logic Launch) score ranks higher.</li>
+                <li><strong>Tie-Breaking Rule 3:</strong> If still tied, the participant with the earlier final submission timestamp ranks higher.</li>
+                <li><strong>Finality:</strong> All decisions made by the technical evaluation committee and administrators are final and binding.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 3.5rem;">
+        <a href="{% url 'register' %}" class="btn-cyber" style="font-size: 1.05rem; padding: 0.85rem 2rem;">
+            <i class="fas fa-check-circle"></i> I Accept the Rules – Proceed to Registration
+        </a>
+    </div>
+</div>
+{% endblock %}
+

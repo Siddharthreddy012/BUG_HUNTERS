@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+
+{% block title %}Administrator Control Center – BUG HUNTERS{% endblock %}
+
+{% block content %}
+<div style="max-width: 1350px; margin: 2rem auto; padding: 0 1.5rem 5rem;">
+    <!-- Top Action Bar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.25rem;">
+                <span class="badge-cyber" style="border-color: #fbbf24; color: #fbbf24;">ADMINISTRATOR PORTAL</span>
+                <span style="font-size: 0.85rem; color: var(--text-dim);">Live Proctoring &amp; Verification</span>
+            </div>
+            <h1 style="font-size: 2rem; font-weight: 800; color: #fff; margin: 0;">
+                Competition Control Center
+            </h1>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <a href="{% url 'export_results_csv' %}" class="btn-outline-cyber">
+                <i class="fas fa-file-csv"></i> Export CSV
+            </a>
+            <a href="{% url 'export_results_excel' %}" class="btn-outline-cyber">
+                <i class="fas fa-file-excel"></i> Export Excel
+            </a>
+            <a href="{% url 'admin_questions' %}" class="btn-outline-cyber">
+                <i class="fas fa-cubes"></i> Questions
+            </a>
+            <a href="{% url 'admin_settings' %}" class="btn-cyber">
+                <i class="fas fa-sliders-h"></i> Settings
+            </a>
+        </div>
+    </div>
+
+    <!-- 7 Metric KPI Cards from Requirements -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; margin-bottom: 2.5rem;">
+        <div class="glass-card-static" style="padding: 1.25rem; border-top: 3px solid var(--cyber-cyan);">
+            <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Total Registered</div>
+            <div style="font-size: 1.8rem; font-weight: 800; font-family: var(--font-mono); color: #fff;">
+                {{ stats.total_participants }}
+            </div>
+        </div>
+
+        <div class="glass-card-static" style="padding: 1.25rem; border-top: 3px solid var(--electric-blue);">
+            <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">R1 Attempted</div>
+            <div style="font-size: 1.8rem; font-weight: 800; font-family: var(--font-mono); color: var(--cyber-cyan);">
+                {{ stats.r1_attempted }}
+            </div>
+        </div>
+
+        <div class="glass-card-static" style="padding: 1.25rem; border-top: 3px solid #34d399;">
+            <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">R1 Qualified</div>
+            <div style="font-size: 1.8rem; font-weight: 800; font-family: var(--font-mono); color: #34d399;">
+                {{ stats.r1_qualified }}
+            </div>
+        </div>
+
+        <div class="glass-card-static" style="padding: 1.25rem; border-top: 3px solid #f59e0b;">
+            <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">R2 Completed</div>
+            <div style="font-size: 1.8rem; font-weight: 800; font-family: var(--font-mono); color: #fbbf24;">
+                {{ stats.r2_completed }}
+            </div>
+        </div>
+
+        <div class="glass-card-static" style="padding: 1.25rem; border-top: 3px solid #10b981;">
+            <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">R2 Verified</div>
+            <div style="font-size: 1.8rem; font-weight: 800; font-family: var(--font-mono); color: #10b981;">
+                {{ stats.r2_verified }}
+            </div>
+        </div>
+
+        <div class="glass-card-static" style="padding: 1.25rem; border-top: 3px solid #a855f7;">
+            <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">R3 Completed</div>
+            <div style="font-size: 1.8rem; font-weight: 800; font-family: var(--font-mono); color: #c084fc;">
+                {{ stats.r3_completed }}
+            </div>
+        </div>
+
+        <div class="glass-card-static" style="padding: 1.25rem; border-top: 3px solid #ec4899;">
+            <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Final Qualified</div>
+            <div style="font-size: 1.8rem; font-weight: 800; font-family: var(--font-mono); color: #f472b6;">
+                {{ stats.final_qualified }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Participant Management Section -->
+    <div class="glass-panel" style="padding: 1.75rem; margin-bottom: 2.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+            <h3 style="font-size: 1.3rem; color: #fff; margin: 0;">
+                <i class="fas fa-users" style="color: var(--cyber-cyan);"></i> Participant Management
+            </h3>
+
+            <!-- Search & Filters -->
+            <form method="get" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search name, roll, or username..." style="width: 250px;">
+                <select name="department" class="form-select" style="width: 170px;">
+                    <option value="">Department</option>
+                    <option value="Computer Science & Engineering" {% if dept_filter == 'Computer Science & Engineering' %}selected{% endif %}>CSE</option>
+                    <option value="Information Technology" {% if dept_filter == 'Information Technology' %}selected{% endif %}>IT</option>
+                    <option value="Artificial Intelligence & Data Science" {% if dept_filter == 'Artificial Intelligence & Data Science' %}selected{% endif %}>AI &amp; DS</option>
+                </select>
+                <select name="year" class="form-select" style="width: 130px;">
+                    <option value="">Year</option>
+                    <option value="1st Year" {% if year_filter == '1st Year' %}selected{% endif %}>1st Year</option>
+                    <option value="2nd Year" {% if year_filter == '2nd Year' %}selected{% endif %}>2nd Year</option>
+                    <option value="3rd Year" {% if year_filter == '3rd Year' %}selected{% endif %}>3rd Year</option>
+                    <option value="4th Year" {% if year_filter == '4th Year' %}selected{% endif %}>4th Year</option>
+                </select>
+                <button type="submit" class="btn-cyber" style="padding: 0.6rem 1.2rem;">
+                    <i class="fas fa-search"></i>
+                </button>
+                {% if query or dept_filter or year_filter %}
+                    <a href="{% url 'admin_dashboard' %}" class="btn-outline-cyber" style="padding: 0.6rem 0.8rem;">
+                        <i class="fas fa-times"></i>
+                    </a>
+                {% endif %}
+            </form>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="cyber-table">
+                <thead>
+                    <tr>
+                        <th>Roll Number</th>
+                        <th>Participant Name</th>
+                        <th>Department &amp; Year</th>
+                        <th style="text-align: center;">R1 Status</th>
+                        <th style="text-align: center;">R2 Status</th>
+                        <th style="text-align: center;">R3 Status</th>
+                        <th style="text-align: center;">Violations</th>
+                        <th style="text-align: right;">Total Score</th>
+                        <th style="text-align: center; width: 140px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in participants %}
+                        <tr>
+                            <td style="font-family: var(--font-mono); color: var(--cyber-cyan); font-weight: 600;">
+                                {{ p.profile.roll_number }}
+                            </td>
+                            <td>
+                                <b style="color: #fff;">{{ p.profile.full_name|default:p.username }}</b><br>
+                                <span style="font-size: 0.75rem; color: var(--text-dim);">{{ p.email }}</span>
+                            </td>
+                            <td style="font-size: 0.85rem; color: var(--text-muted);">
+                                {{ p.profile.department }}<br>
+                                <span style="font-size: 0.75rem; color: var(--text-dim);">{{ p.profile.year }}</span>
+                            </td>
+
+                            <!-- R1 Status -->
+                            <td style="text-align: center;">
+                                {% with pr1=p.competition_rounds.all|dictsort:"round_number" %}
+                                    <span class="badge-cyber {% if p.competition_result.r1_qualified %}badge-success{% else %}badge-locked{% endif %}" style="font-size: 0.72rem;">
+                                        {{ p.competition_result.r1_score }}/15
+                                    </span>
+                                {% endwith %}
+                            </td>
+
+                            <!-- R2 Status -->
+                            <td style="text-align: center;">
+                                <span class="badge-cyber {% if p.competition_result.r2_verified %}badge-success{% elif p.competition_result.r2_score > 0 %}badge-warning{% else %}badge-locked{% endif %}" style="font-size: 0.72rem;">
+                                    {{ p.competition_result.r2_score }}/25
+                                    {% if p.competition_result.r2_verified %}<i class="fas fa-check"></i>{% endif %}
+                                </span>
+                            </td>
+
+                            <!-- R3 Status -->
+                            <td style="text-align: center;">
+                                <span class="badge-cyber {% if p.competition_result.r3_verified %}badge-success{% elif p.competition_result.r3_score > 0 %}badge-warning{% else %}badge-locked{% endif %}" style="font-size: 0.72rem;">
+                                    {{ p.competition_result.r3_score }}/30
+                                    {% if p.competition_result.r3_verified %}<i class="fas fa-check"></i>{% endif %}
+                                </span>
+                            </td>
+
+                            <!-- Tab Violations -->
+                            <td style="text-align: center;">
+                                <span class="badge-cyber {% if p.competition_result.tab_violations_total > 2 %}badge-danger{% elif p.competition_result.tab_violations_total > 0 %}badge-warning{% else %}badge-success{% endif %}" style="font-size: 0.75rem; font-family: var(--font-mono);">
+                                    {{ p.competition_result.tab_violations_total }}
+                                </span>
+                            </td>
+
+                            <!-- Total Score -->
+                            <td style="text-align: right; font-family: var(--font-mono); font-weight: 800; color: #38bdf8;">
+                                {{ p.competition_result.total_score }}
+                            </td>
+
+                            <!-- Action -->
+                            <td style="text-align: center;">
+                                <a href="{% url 'admin_participant_detail' user_id=p.id %}" class="btn-cyber" style="padding: 0.35rem 0.85rem; font-size: 0.8rem;">
+                                    <i class="fas fa-eye"></i> Review
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="9" style="text-align: center; padding: 2.5rem; color: var(--text-dim);">
+                                No participants match search parameters.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Bottom Row: Violations Log & Audit Feed -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <!-- Recent Tab Switch Violations Feed -->
+        <div class="glass-panel" style="padding: 1.5rem;">
+            <h4 style="font-size: 1.05rem; color: #fff; margin-bottom: 1rem;">
+                <i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i> Recent Anti-Cheating Alerts
+            </h4>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; max-height: 300px; overflow-y: auto;">
+                {% for v in recent_violations %}
+                    <div style="background: rgba(10, 17, 40, 0.7); border: 1px solid var(--border-glass); border-radius: 8px; padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <b style="color: #fff; font-size: 0.88rem;">{{ v.participant.profile.full_name|default:v.participant.username }}</b>
+                            <span style="font-size: 0.78rem; color: var(--text-dim);">({{ v.participant.profile.roll_number }})</span>
+                            <div style="font-size: 0.78rem; color: #f87171;">
+                                Round {{ v.round_number }} &bull; Violation #{{ v.violation_count }} ({{ v.event_type }})
+                            </div>
+                        </div>
+                        <span style="font-size: 0.75rem; color: var(--text-dim); font-family: var(--font-mono);">
+                            {{ v.timestamp|date:"H:i:s" }}
+                        </span>
+                    </div>
+                {% empty %}
+                    <div style="color: var(--text-dim); font-size: 0.85rem; text-align: center; padding: 1.5rem;">
+                        No tab switch violations recorded.
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Audit Action Log -->
+        <div class="glass-panel" style="padding: 1.5rem;">
+            <h4 style="font-size: 1.05rem; color: #fff; margin-bottom: 1rem;">
+                <i class="fas fa-history" style="color: var(--cyber-cyan);"></i> Administrative Audit Trail
+            </h4>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; max-height: 300px; overflow-y: auto;">
+                {% for a in audit_logs %}
+                    <div style="background: rgba(10, 17, 40, 0.7); border: 1px solid var(--border-glass); border-radius: 8px; padding: 0.75rem 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                            <b style="color: var(--cyber-cyan); font-size: 0.88rem;">{{ a.action }}</b>
+                            <span style="font-size: 0.75rem; color: var(--text-dim); font-family: var(--font-mono);">
+                                {{ a.timestamp|date:"M d H:i" }}
+                            </span>
+                        </div>
+                        <div style="font-size: 0.78rem; color: var(--text-muted);">
+                            By: {{ a.admin_user.username|default:"System" }} &bull; {{ a.details }}
+                        </div>
+                    </div>
+                {% empty %}
+                    <div style="color: var(--text-dim); font-size: 0.85rem; text-align: center; padding: 1.5rem;">
+                        No audit actions recorded yet.
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

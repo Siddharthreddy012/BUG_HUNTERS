@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Round 1: Code Quest – Question {{ current_number }} of {{ total_questions }}{% endblock %}
+
+{% block content %}
+<!-- Examination Header -->
+<div class="exam-header" data-exam-round="1">
+    <div class="exam-title-badge">
+        <span class="badge-cyber">ROUND 1</span>
+        <span style="font-weight: 700; color: #fff; font-size: 1.1rem;">Code Quest &bull; MCQ Challenge</span>
+        <span class="badge-warning" style="font-size: 0.75rem;">1 Min / Question</span>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 1.5rem;">
+        <!-- Anti-Cheating Violation Badge -->
+        <div id="violation-counter-badge" class="violation-pill {% if violation_count >= comp_settings.max_warning_violations %}flagged{% endif %}">
+            <i class="fas fa-shield-alt"></i> Violations: {{ violation_count }} / {{ comp_settings.max_warning_violations }}
+        </div>
+
+        <!-- Server-Synchronized Countdown Timer -->
+        <div class="timer-box" id="exam-countdown" data-remaining="{{ remaining_seconds }}">
+            <i class="fas fa-stopwatch" style="color: var(--cyber-cyan); font-size: 1.1rem;"></i>
+            <span class="timer-display" id="timer-text">01:00</span>
+        </div>
+    </div>
+</div>
+
+<div style="max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem 5rem;">
+    <div style="display: grid; grid-template-columns: 1fr 280px; gap: 2rem; align-items: start;">
+        
+        <!-- Left: Current Question Area -->
+        <div class="glass-panel" style="padding: 2.5rem;">
+            <!-- Progress indicator -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-glass);">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span style="font-size: 1.1rem; font-weight: 700; color: var(--cyber-cyan);">Question {{ current_number }} of {{ total_questions }}</span>
+                    <span class="badge-cyber" style="font-size: 0.72rem;">{{ question.category }}</span>
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-dim);">
+                    Worth: <b style="color: #fff;">{{ question.marks }} Mark</b>
+                </div>
+            </div>
+
+            <!-- Question Text -->
+            <div style="font-size: 1.15rem; color: #f8fafc; line-height: 1.6; margin-bottom: 2rem; white-space: pre-wrap; font-weight: 500;">{{ question.question_text }}</div>
+
+            <!-- Question Option Form -->
+            <form id="exam-form" method="post" action="{% url 'round1' %}">
+                {% csrf_token %}
+                <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2.5rem;">
+                    {% for opt in options %}
+                        <label style="display: flex; align-items: flex-start; gap: 1rem; padding: 1.1rem 1.4rem; background: rgba(10, 17, 40, 0.75); border: 1px solid var(--border-cyan); border-radius: 10px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--cyber-cyan)'" onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border-cyan)'">
+                            <input type="radio" name="selected_option" value="{{ opt.id }}" style="margin-top: 0.25rem; accent-color: var(--cyber-cyan); transform: scale(1.2);">
+                            <div style="flex-grow: 1;">
+                                <span style="font-weight: 700; color: var(--cyber-cyan); margin-right: 0.5rem;">[{{ opt.identifier }}]</span>
+                                <span style="color: #e2e8f0; font-size: 0.98rem; white-space: pre-wrap;">{{ opt.option_text }}</span>
+                            </div>
+                        </label>
+                    {% endfor %}
+                </div>
+
+                <!-- Action Button -->
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 1.5rem; border-top: 1px solid var(--border-glass);">
+                    <div style="font-size: 0.82rem; color: var(--text-dim);">
+                        <i class="fas fa-lock"></i> Answers lock immediately upon advancing to the next question.
+                    </div>
+                    <button type="submit" name="action" value="next" class="btn-cyber" style="padding: 0.75rem 2rem; font-size: 1rem;">
+                        {% if current_number == total_questions %}
+                            <i class="fas fa-paper-plane"></i> Submit Round 1
+                        {% else %}
+                            Save &amp; Next Question <i class="fas fa-arrow-right"></i>
+                        {% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right: Palette & Instructions -->
+        <div>
+            <!-- Question Status Palette -->
+            <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+                <h4 style="font-size: 0.95rem; color: #fff; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <i class="fas fa-th"></i> Question Palette
+                </h4>
+                <div class="palette-grid">
+                    {% for item in question_status_list %}
+                        <div class="palette-btn {{ item.status }}">
+                            {{ item.index }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div style="margin-top: 1.25rem; display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.75rem; color: var(--text-dim);">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="width: 10px; height: 10px; border-radius: 2px; background: var(--electric-blue); display: inline-block;"></span> Active Question
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="width: 10px; height: 10px; border-radius: 2px; background: #10b981; display: inline-block;"></span> Answered
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="width: 10px; height: 10px; border-radius: 2px; background: rgba(255, 255, 255, 0.1); display: inline-block;"></span> Upcoming / Locked
+                    </div>
+                </div>
+            </div>
+
+            <!-- Proctored Instructions Box -->
+            <div class="glass-card-static" style="padding: 1.4rem; font-size: 0.82rem; color: var(--text-dim); line-height: 1.5;">
+                <b style="color: #cbd5e1; display: block; margin-bottom: 0.5rem;">
+                    <i class="fas fa-info-circle" style="color: var(--cyber-cyan);"></i> Round Guidelines
+                </b>
+                <ul style="padding-left: 1rem; margin: 0; display: flex; flex-direction: column; gap: 0.4rem;">
+                    <li>Each question receives exactly 60 seconds.</li>
+                    <li>Timer continues if you refresh the browser.</li>
+                    <li>Leaving or switching tabs will be recorded as a violation.</li>
+                    <li>Minimum qualifying score: <b>{{ comp_settings.r1_qualifying_marks }} / 15</b>.</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+

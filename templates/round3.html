@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block title %}Round 3: Logic Launch – Challenge {{ current_number }} of {{ total_questions }}{% endblock %}
+
+{% block content %}
+<!-- Examination Header -->
+<div class="exam-header" data-exam-round="3">
+    <div class="exam-title-badge">
+        <span class="badge-cyber" style="border-color: #a855f7; color: #c084fc;">ROUND 3</span>
+        <span style="font-weight: 700; color: #fff; font-size: 1.1rem;">Logic Launch &bull; Flowchart to Code</span>
+        <span class="badge-cyber" id="code-lang-indicator" data-lang="{{ selected_language }}" style="text-transform: uppercase;">
+            {{ selected_language }}
+        </span>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 1.5rem;">
+        <!-- Anti-Cheating Violation Badge -->
+        <div id="violation-counter-badge" class="violation-pill {% if violation_count >= comp_settings.max_warning_violations %}flagged{% endif %}">
+            <i class="fas fa-shield-alt"></i> Violations: {{ violation_count }} / {{ comp_settings.max_warning_violations }}
+        </div>
+
+        <!-- Server-Synchronized Countdown Timer -->
+        <div class="timer-box" id="exam-countdown" data-remaining="{{ remaining_seconds }}">
+            <i class="fas fa-stopwatch" style="color: var(--cyber-cyan); font-size: 1.1rem;"></i>
+            <span class="timer-display" id="timer-text">10:00</span>
+        </div>
+    </div>
+</div>
+
+<div style="max-width: 1400px; margin: 1.5rem auto; padding: 0 1.5rem 5rem;">
+    <!-- Problem Header Banner -->
+    <div class="glass-panel" style="padding: 1.5rem 2rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.25rem;">
+                <span style="font-weight: 700; color: #c084fc; font-size: 1.1rem;">Challenge {{ current_number }} of {{ total_questions }}</span>
+                <span class="badge-danger" style="background: rgba(168, 85, 247, 0.15); border-color: #a855f7; color: #c084fc;">VERY HARD</span>
+            </div>
+            <h2 style="font-size: 1.6rem; color: #fff; font-weight: 800; margin: 0;">{{ question.title }}</h2>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase;">Score Value</div>
+            <div style="font-size: 1.5rem; font-weight: 800; color: #c084fc; font-family: var(--font-mono);">
+                {{ question.marks }} Marks
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Workspace Split: Left (Flowchart Diagram & Specs), Right (Code Editor) -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start;">
+        
+        <!-- Left Column: Flowchart & Specifications -->
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <!-- Flowchart Visualizer Box -->
+            <div class="glass-panel" style="padding: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">
+                        <i class="fas fa-project-diagram" style="color: var(--cyber-cyan);"></i> Visual Flowchart Specification
+                    </div>
+                    <span style="font-size: 0.75rem; color: var(--text-dim);">Follow diagram logic strictly</span>
+                </div>
+                <div class="flowchart-container">
+                    {{ question.flowchart_svg|safe }}
+                </div>
+            </div>
+
+            <!-- Problem Description & I/O Specifications -->
+            <div class="glass-panel" style="padding: 1.5rem;">
+                <h4 style="font-size: 1rem; color: #fff; margin-bottom: 0.5rem;">
+                    <i class="fas fa-align-left" style="color: var(--cyber-cyan);"></i> Problem Description
+                </h4>
+                <p style="color: var(--text-muted); line-height: 1.6; font-size: 0.95rem; margin-bottom: 1.25rem;">
+                    {{ question.description }}
+                </p>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div style="background: rgba(10, 17, 40, 0.6); padding: 0.85rem; border-radius: 8px; border: 1px solid var(--border-glass);">
+                        <b style="color: var(--cyber-cyan); font-size: 0.82rem; text-transform: uppercase; display: block; margin-bottom: 0.25rem;">Input Format:</b>
+                        <span style="color: #cbd5e1; font-size: 0.85rem;">{{ question.input_specification }}</span>
+                    </div>
+                    <div style="background: rgba(10, 17, 40, 0.6); padding: 0.85rem; border-radius: 8px; border: 1px solid var(--border-glass);">
+                        <b style="color: #34d399; font-size: 0.82rem; text-transform: uppercase; display: block; margin-bottom: 0.25rem;">Output Format:</b>
+                        <span style="color: #cbd5e1; font-size: 0.85rem;">{{ question.output_specification }}</span>
+                    </div>
+                </div>
+
+                {% if question.sample_input %}
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div style="background: #090e1a; padding: 0.75rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.82rem;">
+                            <span style="color: var(--text-dim); display: block; margin-bottom: 0.25rem;">Sample Input:</span>
+                            <span style="color: #e2e8f0; white-space: pre;">{{ question.sample_input }}</span>
+                        </div>
+                        <div style="background: #090e1a; padding: 0.75rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.82rem;">
+                            <span style="color: var(--text-dim); display: block; margin-bottom: 0.25rem;">Expected Output:</span>
+                            <span style="color: #34d399; white-space: pre;">{{ question.sample_output }}</span>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Custom Input Box for Sandbox Testing -->
+            <div class="glass-panel" style="padding: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <label class="form-label" style="margin-bottom: 0; font-size: 0.85rem;">
+                        <i class="fas fa-keyboard" style="color: var(--cyber-cyan);"></i> Custom Input (stdin)
+                    </label>
+                    <span style="font-size: 0.75rem; color: var(--text-dim);">Test inputs before submission</span>
+                </div>
+                <textarea id="custom-input-box" class="form-control" rows="2" style="font-family: var(--font-mono); font-size: 0.85rem;" placeholder="e.g. {{ question.sample_input }}"></textarea>
+            </div>
+        </div>
+
+        <!-- Right Column: Code Editor & Execution Console -->
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <form id="exam-form" method="post" action="{% url 'round3' %}">
+                {% csrf_token %}
+                <div class="glass-panel" style="padding: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-code" style="color: #c084fc;"></i>
+                            <span style="font-weight: 700; color: #fff; font-size: 0.95rem;">Algorithm Synthesis Editor</span>
+                        </div>
+                        <button type="button" id="run-code-btn" class="btn-outline-cyber" onclick="runCodeTest()" style="padding: 0.4rem 1rem; font-size: 0.85rem;">
+                            <i class="fas fa-play"></i> Run Code
+                        </button>
+                    </div>
+
+                    <!-- Online Code Editor -->
+                    <textarea name="submitted_code" class="code-editor-area" spellcheck="false" required>{{ editor_code }}</textarea>
+
+                    <!-- Terminal Output Window -->
+                    <div style="margin-top: 1rem;">
+                        <div style="font-size: 0.78rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 0.4rem;">
+                            <i class="fas fa-terminal"></i> Terminal Sandbox Diagnostics
+                        </div>
+                        <div id="console-output" class="console-box">Write code and click 'Run Code' to test with sample inputs...</div>
+                    </div>
+
+                    <!-- Submit / Next Button -->
+                    <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border-glass); display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 0.8rem; color: var(--text-dim);">
+                            <i class="fas fa-shield-alt"></i> Solutions tested against multiple hidden test cases.
+                        </div>
+                        <button type="submit" class="btn-cyber" style="padding: 0.75rem 2.2rem; font-size: 1rem; background: linear-gradient(135deg, #a855f7, #7928ca);">
+                            {% if current_number == total_questions %}
+                                <i class="fas fa-trophy"></i> Complete &amp; Submit Competition
+                            {% else %}
+                                Submit &amp; Next Challenge <i class="fas fa-arrow-right"></i>
+                            {% endif %}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+

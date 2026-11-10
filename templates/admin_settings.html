@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Competition Settings – BUG HUNTERS Admin{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 2.5rem auto; padding: 0 1.5rem 5rem;">
+    <!-- Top Nav / Back -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <a href="{% url 'admin_dashboard' %}" class="btn-outline-cyber">
+            <i class="fas fa-arrow-left"></i> Return to Admin Dashboard
+        </a>
+        <span class="badge-cyber" style="border-color: #fbbf24; color: #fbbf24;">CONFIGURATION</span>
+    </div>
+
+    <div class="glass-panel" style="padding: 2.5rem;">
+        <div style="margin-bottom: 2rem;">
+            <h1 style="font-size: 2rem; font-weight: 800; color: #fff; margin: 0 0 0.5rem;">
+                Competition Configuration
+            </h1>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin: 0;">
+                Configure round cutoffs, time limits, platform flags, and proctoring parameters.
+            </p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label">Competition Event Title</label>
+                <input type="text" name="title" value="{{ comp_settings.title }}" class="form-control" required>
+            </div>
+
+            <!-- Qualification Marks Configuration -->
+            <div style="background: rgba(10, 17, 40, 0.6); border: 1px solid var(--border-glass); border-radius: 10px; padding: 1.5rem; margin-bottom: 1.75rem;">
+                <h4 style="font-size: 1rem; color: #fff; margin-bottom: 1rem;">
+                    <i class="fas fa-award" style="color: var(--cyber-cyan);"></i> Round Qualification Cutoff Marks
+                </h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="form-group">
+                        <label class="form-label">Round 1 Cutoff (/15) *</label>
+                        <input type="number" name="r1_qualifying_marks" value="{{ comp_settings.r1_qualifying_marks }}" min="1" max="15" class="form-control" required>
+                        <span style="font-size: 0.78rem; color: var(--text-dim);">Minimum marks needed to unlock Round 2 (Default: 9)</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Round 2 Cutoff (/25) *</label>
+                        <input type="number" name="r2_qualifying_marks" value="{{ comp_settings.r2_qualifying_marks }}" min="1" max="25" class="form-control" required>
+                        <span style="font-size: 0.78rem; color: var(--text-dim);">Minimum marks needed for Round 3 verification (Default: 15)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Time Limit Configuration -->
+            <div style="background: rgba(10, 17, 40, 0.6); border: 1px solid var(--border-glass); border-radius: 10px; padding: 1.5rem; margin-bottom: 1.75rem;">
+                <h4 style="font-size: 1rem; color: #fff; margin-bottom: 1rem;">
+                    <i class="fas fa-stopwatch" style="color: #34d399;"></i> Time Allocations Per Question (in Seconds)
+                </h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.25rem;">
+                    <div class="form-group">
+                        <label class="form-label">Round 1 (seconds)</label>
+                        <input type="number" name="r1_time_per_question_seconds" value="{{ comp_settings.r1_time_per_question_seconds }}" min="10" max="600" class="form-control" required>
+                        <span style="font-size: 0.75rem; color: var(--text-dim);">Default: 60s (1 min)</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Round 2 (seconds)</label>
+                        <input type="number" name="r2_time_per_question_seconds" value="{{ comp_settings.r2_time_per_question_seconds }}" min="30" max="1800" class="form-control" required>
+                        <span style="font-size: 0.75rem; color: var(--text-dim);">Default: 300s (5 min)</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Round 3 (seconds)</label>
+                        <input type="number" name="r3_time_per_question_seconds" value="{{ comp_settings.r3_time_per_question_seconds }}" min="60" max="3600" class="form-control" required>
+                        <span style="font-size: 0.75rem; color: var(--text-dim);">Default: 600s (10 min)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toggles -->
+            <div style="background: rgba(10, 17, 40, 0.6); border: 1px solid var(--border-glass); border-radius: 10px; padding: 1.5rem; margin-bottom: 2rem;">
+                <h4 style="font-size: 1rem; color: #fff; margin-bottom: 1rem;">
+                    <i class="fas fa-toggle-on" style="color: #fbbf24;"></i> Stage &amp; Feature Activation Switches
+                </h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                    <label style="display: flex; align-items: center; gap: 0.75rem; color: #cbd5e1; cursor: pointer;">
+                        <input type="checkbox" name="r1_enabled" {% if comp_settings.r1_enabled %}checked{% endif %} style="transform: scale(1.3); accent-color: var(--cyber-cyan);">
+                        Round 1 (Code Quest) Active
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.75rem; color: #cbd5e1; cursor: pointer;">
+                        <input type="checkbox" name="r2_enabled" {% if comp_settings.r2_enabled %}checked{% endif %} style="transform: scale(1.3); accent-color: var(--cyber-cyan);">
+                        Round 2 (Bug Bounty) Active
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.75rem; color: #cbd5e1; cursor: pointer;">
+                        <input type="checkbox" name="r3_enabled" {% if comp_settings.r3_enabled %}checked{% endif %} style="transform: scale(1.3); accent-color: var(--cyber-cyan);">
+                        Round 3 (Logic Launch) Active
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.75rem; color: #cbd5e1; cursor: pointer;">
+                        <input type="checkbox" name="allow_registration" {% if comp_settings.allow_registration %}checked{% endif %} style="transform: scale(1.3); accent-color: var(--cyber-cyan);">
+                        Allow Participant Registration
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.75rem; color: #cbd5e1; cursor: pointer;">
+                        <input type="checkbox" name="leaderboard_published" {% if comp_settings.leaderboard_published %}checked{% endif %} style="transform: scale(1.3); accent-color: var(--cyber-cyan);">
+                        Publish Live Leaderboard to Public
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.75rem; color: #cbd5e1; cursor: pointer;">
+                        <input type="checkbox" name="anti_cheating_enabled" {% if comp_settings.anti_cheating_enabled %}checked{% endif %} style="transform: scale(1.3); accent-color: var(--cyber-cyan);">
+                        Active Tab-Switch Monitoring
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-cyber" style="padding: 0.85rem 2.5rem; font-size: 1.05rem;">
+                <i class="fas fa-save"></i> Save Configuration Changes
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

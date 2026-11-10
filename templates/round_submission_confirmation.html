@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Submission Received – Round {{ round_num }}: {{ round_name }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 650px; margin: 4.5rem auto; padding: 0 1.5rem 5rem; text-align: center;">
+    <div class="glass-panel" style="padding: 3.5rem 2.5rem;">
+        <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(0, 240, 255, 0.15); border: 2px solid var(--cyber-cyan); display: flex; align-items: center; justify-content: center; font-size: 2.4rem; color: var(--cyber-cyan); margin: 0 auto 1.5rem; box-shadow: 0 0 25px rgba(0, 240, 255, 0.4);">
+            <i class="fas fa-file-code"></i>
+        </div>
+
+        <span class="badge-cyber" style="font-size: 0.85rem; margin-bottom: 0.75rem; display: inline-block;">
+            ROUND {{ round_num }} SUBMITTED
+        </span>
+        <h1 style="font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 0.75rem;">
+            Submission Recorded!
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 2rem;">
+            {{ message }}
+        </p>
+
+        <!-- Status & Score Card -->
+        <div style="background: rgba(10, 17, 40, 0.75); border: 1px solid var(--border-glass); border-radius: 12px; padding: 1.5rem; margin-bottom: 2.5rem; display: flex; justify-content: space-around; align-items: center;">
+            <div>
+                <div style="font-size: 0.78rem; color: var(--text-dim); text-transform: uppercase;">Evaluated Score</div>
+                <div style="font-size: 2.2rem; font-weight: 800; font-family: var(--font-mono); color: #34d399;">
+                    {{ score }} <span style="font-size: 1rem; color: var(--text-dim);">/ {{ max_score }}</span>
+                </div>
+            </div>
+            <div style="width: 1px; height: 45px; background: var(--border-glass);"></div>
+            <div>
+                <div style="font-size: 0.78rem; color: var(--text-dim); text-transform: uppercase;">Current Status</div>
+                <div style="font-size: 1rem; font-weight: 700; color: #fbbf24; margin-top: 0.4rem;">
+                    {{ status }}
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+            <a href="{% url 'dashboard' %}" class="btn-cyber" style="padding: 0.85rem 2.2rem; font-size: 1.05rem;">
+                <i class="fas fa-tachometer-alt"></i> Back to Dashboard
+            </a>
+            <a href="{% url 'leaderboard' %}" class="btn-outline-cyber" style="padding: 0.85rem 2rem; font-size: 1.05rem;">
+                <i class="fas fa-trophy"></i> View Standings
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

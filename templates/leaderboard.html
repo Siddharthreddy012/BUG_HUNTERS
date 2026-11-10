@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+
+{% block title %}Live Leaderboard – BUG HUNTERS 2026{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 3rem auto; padding: 0 1.5rem 5rem;">
+    <!-- Title & Status Header -->
+    <div style="text-align: center; margin-bottom: 2.5rem;">
+        <span class="badge-cyber" style="margin-bottom: 0.5rem; display: inline-block;">OFFICIAL STANDINGS</span>
+        <h1 style="font-size: 2.6rem; font-weight: 800; color: #fff; margin: 0 0 0.5rem;">
+            Championship Leaderboard
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1rem; max-width: 650px; margin: 0 auto;">
+            Rankings are computed dynamically based on aggregate score across all three rounds with strict tie-breaking logic.
+        </p>
+    </div>
+
+    <!-- Tie-Breaking Explainer Banner -->
+    <div class="glass-card-static" style="padding: 1rem 1.5rem; margin-bottom: 2.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; font-size: 0.85rem;">
+        <div style="color: var(--text-muted);">
+            <i class="fas fa-balance-scale" style="color: var(--cyber-cyan); margin-right: 0.5rem;"></i>
+            <b>Official Tie-Breaking Protocol:</b>
+            <span style="color: var(--text-dim);">1. Total Score &rarr; 2. Higher Round 3 (Logic Launch) Score &rarr; 3. Earliest Submission Timestamp</span>
+        </div>
+        <div style="color: var(--text-dim);">
+            <i class="fas fa-check-double" style="color: #34d399;"></i> Real-Time Proctored Results
+        </div>
+    </div>
+
+    {% if is_published %}
+        <!-- Top 3 Podium (if at least 1 verified participant exists) -->
+        {% if top_3 %}
+            <div class="podium-container">
+                <!-- 2nd Place -->
+                {% if top_3|length >= 2 %}
+                    {% with p2=top_3.1 %}
+                        <div class="podium-item podium-rank-2">
+                            <div style="width: 50px; height: 50px; border-radius: 50%; background: #94a3b8; color: #0f172a; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; margin-bottom: 0.75rem;">
+                                2
+                            </div>
+                            <i class="fas fa-medal" style="color: #cbd5e1; font-size: 1.8rem; margin-bottom: 0.5rem;"></i>
+                            <h4 style="color: #fff; font-size: 1.1rem; margin: 0 0 0.25rem;">
+                                {{ p2.participant.profile.full_name|default:p2.participant.username }}
+                            </h4>
+                            <div style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.75rem;">
+                                {{ p2.participant.profile.roll_number }}
+                            </div>
+                            <div style="font-size: 1.6rem; font-weight: 800; font-family: var(--font-mono); color: #94a3b8;">
+                                {{ p2.total_score }} <span style="font-size: 0.85rem; color: var(--text-dim);">pts</span>
+                            </div>
+                        </div>
+                    {% endwith %}
+                {% endif %}
+
+                <!-- 1st Place (Gold Champion) -->
+                {% with p1=top_3.0 %}
+                    <div class="podium-item podium-rank-1">
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background: #eab308; color: #0f172a; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 800; margin-bottom: 0.75rem; box-shadow: 0 0 20px rgba(234, 179, 8, 0.6);">
+                            1
+                        </div>
+                        <i class="fas fa-crown" style="color: #eab308; font-size: 2.2rem; margin-bottom: 0.5rem;"></i>
+                        <h3 style="color: #fff; font-size: 1.35rem; font-weight: 800; margin: 0 0 0.25rem;">
+                            {{ p1.participant.profile.full_name|default:p1.participant.username }}
+                        </h3>
+                        <div style="font-size: 0.85rem; color: #fde047; margin-bottom: 0.85rem; font-weight: 600;">
+                            {{ p1.participant.profile.roll_number }} &bull; {{ p1.participant.profile.department }}
+                        </div>
+                        <div style="font-size: 2.2rem; font-weight: 800; font-family: var(--font-mono); color: #facc15;">
+                            {{ p1.total_score }} <span style="font-size: 1rem; color: var(--text-dim);">pts</span>
+                        </div>
+                    </div>
+                {% endwith %}
+
+                <!-- 3rd Place -->
+                {% if top_3|length >= 3 %}
+                    {% with p3=top_3.2 %}
+                        <div class="podium-item podium-rank-3">
+                            <div style="width: 50px; height: 50px; border-radius: 50%; background: #d97706; color: #0f172a; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; margin-bottom: 0.75rem;">
+                                3
+                            </div>
+                            <i class="fas fa-award" style="color: #f59e0b; font-size: 1.8rem; margin-bottom: 0.5rem;"></i>
+                            <h4 style="color: #fff; font-size: 1.1rem; margin: 0 0 0.25rem;">
+                                {{ p3.participant.profile.full_name|default:p3.participant.username }}
+                            </h4>
+                            <div style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.75rem;">
+                                {{ p3.participant.profile.roll_number }}
+                            </div>
+                            <div style="font-size: 1.6rem; font-weight: 800; font-family: var(--font-mono); color: #d97706;">
+                                {{ p3.total_score }} <span style="font-size: 0.85rem; color: var(--text-dim);">pts</span>
+                            </div>
+                        </div>
+                    {% endwith %}
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <!-- Filter & Search Controls -->
+        <div class="glass-panel" style="padding: 1.25rem; margin-bottom: 1.75rem;">
+            <form method="get" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                <div style="flex-grow: 1; min-width: 240px;">
+                    <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search by participant name or roll number...">
+                </div>
+                <div style="min-width: 200px;">
+                    <select name="department" class="form-select">
+                        <option value="">All Departments</option>
+                        <option value="Computer Science & Engineering" {% if dept_filter == 'Computer Science & Engineering' %}selected{% endif %}>CSE</option>
+                        <option value="Information Technology" {% if dept_filter == 'Information Technology' %}selected{% endif %}>IT</option>
+                        <option value="Artificial Intelligence & Data Science" {% if dept_filter == 'Artificial Intelligence & Data Science' %}selected{% endif %}>AI &amp; DS</option>
+                        <option value="Electronics & Communication" {% if dept_filter == 'Electronics & Communication' %}selected{% endif %}>ECE</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-cyber" style="padding: 0.75rem 1.4rem;">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+                {% if query or dept_filter %}
+                    <a href="{% url 'leaderboard' %}" class="btn-outline-cyber" style="padding: 0.75rem 1rem;">
+                        <i class="fas fa-times"></i> Clear
+                    </a>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- Full Standings Table -->
+        <div class="glass-panel" style="overflow-x: auto; padding: 0.5rem;">
+            <table class="cyber-table">
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">Rank</th>
+                        <th>Participant</th>
+                        <th>Roll Number</th>
+                        <th>Department</th>
+                        <th style="text-align: center;">R1 (MCQ)</th>
+                        <th style="text-align: center;">R2 (Debug)</th>
+                        <th style="text-align: center;">R3 (Logic)</th>
+                        <th style="text-align: right;">Total Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in leaderboard %}
+                        <tr>
+                            <td>
+                                {% if item.final_rank == 1 %}
+                                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: #eab308; color: #000; font-weight: 800; font-size: 0.85rem;">1</span>
+                                {% elif item.final_rank == 2 %}
+                                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: #94a3b8; color: #000; font-weight: 800; font-size: 0.85rem;">2</span>
+                                {% elif item.final_rank == 3 %}
+                                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: #d97706; color: #fff; font-weight: 800; font-size: 0.85rem;">3</span>
+                                {% else %}
+                                    <span style="font-family: var(--font-mono); font-weight: 700; color: var(--text-dim); padding-left: 0.5rem;">#{{ item.final_rank }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <b style="color: #fff;">{{ item.participant.profile.full_name|default:item.participant.username }}</b>
+                            </td>
+                            <td style="font-family: var(--font-mono); color: var(--cyber-cyan);">
+                                {{ item.participant.profile.roll_number }}
+                            </td>
+                            <td style="color: var(--text-muted); font-size: 0.85rem;">
+                                {{ item.participant.profile.department }}
+                            </td>
+                            <td style="text-align: center; font-family: var(--font-mono);">
+                                {{ item.r1_score }}/15
+                            </td>
+                            <td style="text-align: center; font-family: var(--font-mono); color: #f59e0b;">
+                                {{ item.r2_score }}/25
+                            </td>
+                            <td style="text-align: center; font-family: var(--font-mono); color: #c084fc;">
+                                {{ item.r3_score }}/30
+                            </td>
+                            <td style="text-align: right; font-family: var(--font-mono); font-weight: 800; color: var(--cyber-cyan); font-size: 1.1rem;">
+                                {{ item.total_score }}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 3rem; color: var(--text-dim);">
+                                <i class="fas fa-users-slash" style="font-size: 2rem; margin-bottom: 0.75rem; display: block;"></i>
+                                No participant standings match the current filter.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    {% else %}
+        <!-- Unpublished state -->
+        <div class="glass-panel" style="padding: 4rem 2rem; text-align: center; max-width: 650px; margin: 3rem auto;">
+            <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(245, 158, 11, 0.15); border: 2px solid #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #f59e0b; margin: 0 auto 1.5rem;">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h2 style="font-size: 1.8rem; font-weight: 800; color: #fff; margin-bottom: 0.75rem;">
+                Leaderboard Pending Final Verification
+            </h2>
+            <p style="color: var(--text-muted); line-height: 1.6; margin-bottom: 2rem;">
+                The competition administrator is currently verifying participant code submissions and finalizing audit records. The official standings will be published shortly upon conclusion of verification.
+            </p>
+            <a href="{% url 'dashboard' %}" class="btn-cyber">
+                <i class="fas fa-tachometer-alt"></i> Return to Participant Dashboard
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+

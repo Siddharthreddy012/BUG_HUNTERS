@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Participant Registration – BUG HUNTERS 2026{% endblock %}
+
+{% block content %}
+<div style="max-width: 680px; margin: 3rem auto; padding: 0 1.5rem 5rem;">
+    <div class="glass-panel" style="padding: 2.8rem 2.2rem;">
+        <div style="text-align: center; margin-bottom: 2.2rem;">
+            <div style="width: 54px; height: 54px; border-radius: 12px; background: rgba(0, 240, 255, 0.15); border: 1px solid var(--border-cyan); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--cyber-cyan); margin: 0 auto 1rem;">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <h2 style="font-size: 2rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem;">
+                Participant Registration
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">
+                Create your official contestant account to enter the BUG HUNTERS competition arena.
+            </p>
+        </div>
+
+        {% if form.errors %}
+            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+                <div style="color: #fca5a5; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem;">
+                    <i class="fas fa-exclamation-triangle"></i> Please correct the following errors:
+                </div>
+                <ul style="color: #fca5a5; font-size: 0.85rem; padding-left: 1.2rem; margin: 0;">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li><b>{{ field.label }}:</b> {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'register' %}">
+            {% csrf_token %}
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                <div class="form-group">
+                    <label class="form-label">Full Name *</label>
+                    {{ form.full_name }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">College Roll Number *</label>
+                    {{ form.roll_number }}
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                <div class="form-group">
+                    <label class="form-label">Department *</label>
+                    {{ form.department }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Current Academic Year *</label>
+                    {{ form.year }}
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                <div class="form-group">
+                    <label class="form-label">Email Address *</label>
+                    {{ form.email }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Username *</label>
+                    {{ form.username }}
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                <div class="form-group">
+                    <label class="form-label">Password *</label>
+                    {{ form.password }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirm Password *</label>
+                    {{ form.confirm_password }}
+                </div>
+            </div>
+
+            <div style="margin: 1.75rem 0 1.25rem;">
+                <button type="submit" class="btn-cyber" style="width: 100%; justify-content: center; padding: 0.85rem; font-size: 1.05rem;">
+                    <i class="fas fa-check-circle"></i> Complete Registration &amp; Enter Dashboard
+                </button>
+            </div>
+
+            <div style="text-align: center; font-size: 0.9rem; color: var(--text-dim);">
+                Already have an account? <a href="{% url 'login' %}" style="color: var(--cyber-cyan); text-decoration: none; font-weight: 600;">Sign In here</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,123 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ comp_settings.title }} – Competitive Debugging &amp; Programming Platform{% endblock %}</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Custom Cyber Theme CSS -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Flash Messages Hidden Data for Toasts -->
+    {% if messages %}
+        <div id="django-messages-container" style="display: none;">
+            {% for message in messages %}
+                <span class="django-flash-message" data-message="{{ message }}" data-tag="{{ message.tags }}"></span>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Cyber Navigation Bar -->
+    <nav class="cyber-nav">
+        <div class="nav-container">
+            <a href="{% url 'home' %}" class="nav-brand">
+                <div class="brand-icon">
+                    <i class="fas fa-bug"></i>
+                </div>
+                <div>
+                    <span class="gradient-text">BUG</span>
+                    <span style="color: #ffffff;">HUNTERS</span>
+                </div>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="{% url 'about' %}" class="{% if request.resolver_match.url_name == 'about' %}active{% endif %}"><i class="fas fa-info-circle"></i> About</a></li>
+                <li><a href="{% url 'rules' %}" class="{% if request.resolver_match.url_name == 'rules' %}active{% endif %}"><i class="fas fa-scroll"></i> Rules</a></li>
+                <li><a href="{% url 'rounds_overview' %}" class="{% if request.resolver_match.url_name == 'rounds_overview' %}active{% endif %}"><i class="fas fa-layer-group"></i> Rounds</a></li>
+                <li><a href="{% url 'leaderboard' %}" class="{% if request.resolver_match.url_name == 'leaderboard' %}active{% endif %}"><i class="fas fa-trophy"></i> Leaderboard</a></li>
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    {% if user.is_staff or user.is_superuser %}
+                        <li><a href="{% url 'admin_dashboard' %}" style="color: #fbbf24;"><i class="fas fa-shield-alt"></i> Admin Portal</a></li>
+                    {% endif %}
+                {% endif %}
+            </ul>
+
+            <div class="nav-actions">
+                {% if user.is_authenticated %}
+                    <div style="display: flex; align-items: center; gap: 0.85rem;">
+                        <span class="badge-cyber" style="display: flex; align-items: center; gap: 0.4rem;">
+                            <i class="fas fa-user-circle"></i> {{ user.profile.roll_number|default:user.username }}
+                        </span>
+                        <a href="{% url 'logout' %}" class="btn-danger-cyber" title="Logout">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn-outline-cyber">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a>
+                    <a href="{% url 'register' %}" class="btn-cyber">
+                        <i class="fas fa-user-plus"></i> Register
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main style="flex-grow: 1;">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container"></div>
+
+    <!-- Global Footer -->
+    <footer class="cyber-footer">
+        <div class="footer-content">
+            <div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <i class="fas fa-shield-virus" style="color: var(--cyber-cyan); font-size: 1.2rem;"></i>
+                    <span style="font-weight: 700; color: #fff;">{{ comp_settings.title }}</span>
+                </div>
+                <p style="font-size: 0.82rem; color: var(--text-muted); max-width: 480px;">
+                    An interactive, competitive debugging platform designed for technical symposiums and collegiate coding competitions.
+                </p>
+                <p style="font-size: 0.78rem; color: var(--text-dim); margin-top: 0.5rem;">
+                    Organized by the Department of Computer Science &amp; Engineering &bull; {{ comp_settings.college_name }}
+                </p>
+            </div>
+            <div style="text-align: right;">
+                <div style="margin-bottom: 0.5rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                    <a href="{% url 'rules' %}" style="color: var(--text-dim); text-decoration: none;">Rules &amp; Terms</a>
+                    <a href="{% url 'leaderboard' %}" style="color: var(--text-dim); text-decoration: none;">Live Standings</a>
+                    <a href="{% url 'about' %}" style="color: var(--text-dim); text-decoration: none;">Committee</a>
+                </div>
+                <p style="font-size: 0.78rem; color: var(--text-dim);">
+                    &copy; 2026 BUG HUNTERS. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Core Scripts -->
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
+

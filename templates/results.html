@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block title %}My Performance Scorecard – BUG HUNTERS 2026{% endblock %}
+
+{% block content %}
+<div style="max-width: 1050px; margin: 3rem auto; padding: 0 1.5rem 5rem;">
+    <!-- Scorecard Header -->
+    <div class="glass-panel" style="padding: 2.5rem; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+            <div>
+                <span class="badge-cyber" style="margin-bottom: 0.5rem; display: inline-block;">OFFICIAL SCORECARD</span>
+                <h1 style="font-size: 2.2rem; font-weight: 800; color: #fff; margin: 0 0 0.25rem;">
+                    {{ user.profile.full_name|default:user.username }}
+                </h1>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin: 0;">
+                    Roll Number: <b style="color: var(--cyber-cyan);">{{ user.profile.roll_number }}</b> &bull; {{ user.profile.department }}
+                </p>
+            </div>
+
+            <div style="display: flex; gap: 2rem; align-items: center;">
+                <div style="text-align: right;">
+                    <div style="font-size: 0.78rem; color: var(--text-dim); text-transform: uppercase;">Aggregate Score</div>
+                    <div style="font-size: 2.6rem; font-weight: 800; color: var(--cyber-cyan); font-family: var(--font-mono); line-height: 1.1;">
+                        {{ result.total_score }} <span style="font-size: 1.1rem; color: var(--text-dim);">/ 70</span>
+                    </div>
+                </div>
+                {% if result.final_rank %}
+                    <div style="text-align: right; padding-left: 1.5rem; border-left: 1px solid var(--border-glass);">
+                        <div style="font-size: 0.78rem; color: var(--text-dim); text-transform: uppercase;">Championship Rank</div>
+                        <div style="font-size: 2.4rem; font-weight: 800; color: #fbbf24; font-family: var(--font-mono); line-height: 1.1;">
+                            #{{ result.final_rank }}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Round-Wise Detailed Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
+        <!-- Round 1 Breakdown -->
+        <div class="glass-card-static" style="padding: 1.8rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <span class="badge-cyber">ROUND 1</span>
+                {% if r1.status == 'QUALIFIED' %}
+                    <span class="badge-cyber badge-success">QUALIFIED</span>
+                {% else %}
+                    <span class="badge-cyber badge-danger">{{ r1.status|default:"LOCKED" }}</span>
+                {% endif %}
+            </div>
+            <h3 style="color: #fff; font-size: 1.25rem; margin-bottom: 0.25rem;">Code Quest</h3>
+            <div style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1.25rem;">MCQ Challenge (15 Questions)</div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: baseline; padding-top: 1rem; border-top: 1px solid var(--border-glass);">
+                <span style="font-size: 0.88rem; color: var(--text-muted);">Points Awarded:</span>
+                <span style="font-size: 1.6rem; font-weight: 800; font-family: var(--font-mono); color: #fff;">
+                    {{ r1.score|default:0 }} <span style="font-size: 0.85rem; color: var(--text-dim);">/ 15</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Round 2 Breakdown -->
+        <div class="glass-card-static" style="padding: 1.8rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <span class="badge-cyber" style="border-color: #f59e0b; color: #f59e0b;">ROUND 2</span>
+                {% if r2.is_verified %}
+                    <span class="badge-cyber badge-success">VERIFIED</span>
+                {% elif r2.status == 'UNDER_EVALUATION' or r2.status == 'SUBMITTED' %}
+                    <span class="badge-cyber badge-warning">UNDER REVIEW</span>
+                {% else %}
+                    <span class="badge-locked">{{ r2.status|default:"LOCKED" }}</span>
+                {% endif %}
+            </div>
+            <h3 style="color: #fff; font-size: 1.25rem; margin-bottom: 0.25rem;">Bug Bounty</h3>
+            <div style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1.25rem;">
+                Language: <b style="color: #fff; text-transform: uppercase;">{{ r2.selected_language|default:"Not chosen" }}</b>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: baseline; padding-top: 1rem; border-top: 1px solid var(--border-glass);">
+                <span style="font-size: 0.88rem; color: var(--text-muted);">Points Awarded:</span>
+                <span style="font-size: 1.6rem; font-weight: 800; font-family: var(--font-mono); color: #fff;">
+                    {{ r2.score|default:0 }} <span style="font-size: 0.85rem; color: var(--text-dim);">/ 25</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Round 3 Breakdown -->
+        <div class="glass-card-static" style="padding: 1.8rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <span class="badge-cyber" style="border-color: #a855f7; color: #c084fc;">ROUND 3</span>
+                {% if r3.is_verified %}
+                    <span class="badge-cyber badge-success">VERIFIED</span>
+                {% elif r3.status == 'SUBMITTED' %}
+                    <span class="badge-cyber badge-warning">AWAITING REVIEW</span>
+                {% else %}
+                    <span class="badge-locked">{{ r3.status|default:"LOCKED" }}</span>
+                {% endif %}
+            </div>
+            <h3 style="color: #fff; font-size: 1.25rem; margin-bottom: 0.25rem;">Logic Launch</h3>
+            <div style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1.25rem;">
+                Language: <b style="color: #fff; text-transform: uppercase;">{{ r3.selected_language|default:"Not chosen" }}</b>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: baseline; padding-top: 1rem; border-top: 1px solid var(--border-glass);">
+                <span style="font-size: 0.88rem; color: var(--text-muted);">Points Awarded:</span>
+                <span style="font-size: 1.6rem; font-weight: 800; font-family: var(--font-mono); color: #c084fc;">
+                    {{ r3.score|default:0 }} <span style="font-size: 0.85rem; color: var(--text-dim);">/ 30</span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Proctoring & Integrity Summary -->
+    <div class="glass-panel" style="padding: 1.8rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 45px; height: 45px; border-radius: 10px; background: rgba(0, 240, 255, 0.1); border: 1px solid var(--border-cyan); display: flex; align-items: center; justify-content: center; color: var(--cyber-cyan); font-size: 1.3rem;">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <div>
+                <h4 style="color: #fff; margin: 0 0 0.25rem; font-size: 1.05rem;">Proctor Integrity Status</h4>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">
+                    Browser tab switches logged across contest sessions: 
+                    <b style="color: {% if result.tab_violations_total > 2 %}#ef4444{% else %}#34d399{% endif %}; font-family: var(--font-mono);">{{ result.tab_violations_total }}</b>
+                </p>
+            </div>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+            <a href="{% url 'leaderboard' %}" class="btn-cyber">
+                <i class="fas fa-trophy"></i> Open Official Leaderboard
+            </a>
+            <a href="{% url 'dashboard' %}" class="btn-outline-cyber">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

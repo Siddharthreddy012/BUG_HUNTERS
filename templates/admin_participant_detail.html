@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+
+{% block title %}Inspect Participant – {{ target_user.profile.full_name|default:target_user.username }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 1250px; margin: 2rem auto; padding: 0 1.5rem 5rem;">
+    <!-- Top Nav / Back -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <a href="{% url 'admin_dashboard' %}" class="btn-outline-cyber">
+            <i class="fas fa-arrow-left"></i> Return to Admin Dashboard
+        </a>
+        <div style="font-size: 0.85rem; color: var(--text-dim);">
+            Participant ID: <b style="color: #fff;">#{{ target_user.id }}</b>
+        </div>
+    </div>
+
+    <!-- Participant Profile Header Card -->
+    <div class="glass-panel" style="padding: 2rem; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+            <div>
+                <span class="badge-cyber" style="margin-bottom: 0.5rem; display: inline-block;">{{ target_user.profile.roll_number }}</span>
+                <h1 style="font-size: 2rem; font-weight: 800; color: #fff; margin: 0 0 0.25rem;">
+                    {{ target_user.profile.full_name|default:target_user.username }}
+                </h1>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin: 0;">
+                    <i class="fas fa-envelope"></i> {{ target_user.email }} &bull; {{ target_user.profile.department }} ({{ target_user.profile.year }})
+                </p>
+            </div>
+
+            <!-- Manual Status Override Panel -->
+            <div style="background: rgba(10, 17, 40, 0.7); border: 1px solid var(--border-cyan); border-radius: 10px; padding: 1.25rem;">
+                <b style="color: #fff; font-size: 0.85rem; display: block; margin-bottom: 0.5rem;">
+                    <i class="fas fa-user-shield" style="color: #fbbf24;"></i> Manual Status Override
+                </b>
+                <form method="post" action="{% url 'admin_override' user_id=target_user.id %}" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    {% csrf_token %}
+                    <select name="round_number" class="form-select" style="width: 110px; padding: 0.4rem 0.6rem; font-size: 0.82rem;">
+                        <option value="1">Round 1</option>
+                        <option value="2">Round 2</option>
+                        <option value="3">Round 3</option>
+                    </select>
+                    <select name="new_status" class="form-select" style="width: 130px; padding: 0.4rem 0.6rem; font-size: 0.82rem;">
+                        <option value="QUALIFIED">Qualified</option>
+                        <option value="VERIFIED">Verified</option>
+                        <option value="UNLOCKED">Unlocked</option>
+                        <option value="NOT_QUALIFIED">Not Qualified</option>
+                        <option value="LOCKED">Locked</option>
+                    </select>
+                    <input type="text" name="reason" placeholder="Audit Reason" class="form-control" style="width: 150px; padding: 0.4rem 0.6rem; font-size: 0.82rem;" required>
+                    <button type="submit" class="btn-cyber" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">
+                        Override
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Round 1 Review Section -->
+    <div class="glass-panel" style="padding: 1.75rem; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <span class="badge-cyber">ROUND 1</span>
+                <h3 style="font-size: 1.25rem; color: #fff; margin: 0;">Code Quest (MCQs)</h3>
+            </div>
+            <div style="font-family: var(--font-mono); font-size: 1.15rem; font-weight: 700; color: #fff;">
+                Score: <span style="color: var(--cyber-cyan);">{{ r1.score }}/15</span> &bull; Status: <b style="color: {% if r1.status == 'QUALIFIED' %}#34d399{% else %}#f87171{% endif %};">{{ r1.status }}</b>
+            </div>
+        </div>
+
+        <div style="max-height: 220px; overflow-y: auto; background: rgba(10, 17, 40, 0.6); border-radius: 8px; padding: 0.75rem;">
+            {% for ans in r1_answers %}
+                <div style="display: flex; justify-content: space-between; padding: 0.5rem 0.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.85rem;">
+                    <div>
+                        <span style="color: var(--cyber-cyan); font-weight: 600;">Q{{ forloop.counter }}:</span>
+                        <span style="color: #cbd5e1;">{{ ans.question.question_text|truncatewords:10 }}</span>
+                    </div>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <span style="color: var(--text-dim);">Selected: <b>{{ ans.selected_option.identifier|default:"None" }}</b></span>
+                        <span class="badge-cyber {% if ans.is_correct %}badge-success{% else %}badge-danger{% endif %}" style="font-size: 0.7rem;">
+                            {% if ans.is_correct %}+1.0{% else %}0.0{% endif %}
+                        </span>
+                    </div>
+                </div>
+            {% empty %}
+                <div style="color: var(--text-dim); text-align: center; padding: 1rem; font-size: 0.85rem;">No answers recorded for Round 1 yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Round 2 Review & Verification Section -->
+    <div class="glass-panel" style="padding: 1.75rem; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <span class="badge-cyber" style="border-color: #f59e0b; color: #f59e0b;">ROUND 2</span>
+                <h3 style="font-size: 1.25rem; color: #fff; margin: 0;">Bug Bounty (Code Submissions)</h3>
+                <span class="badge-cyber" style="text-transform: uppercase;">{{ r2.selected_language|default:"Not selected" }}</span>
+            </div>
+            <div style="font-family: var(--font-mono); font-size: 1.15rem; font-weight: 700; color: #fff;">
+                Score: <span style="color: #fbbf24;">{{ r2.score }}/25</span> &bull; Status: <b style="color: {% if r2.is_verified %}#34d399{% else %}#fbbf24{% endif %};">{{ r2.status }}</b>
+            </div>
+        </div>
+
+        <!-- Verification Action Form -->
+        {% if r2 and r2.status in 'SUBMITTED,UNDER_EVALUATION,QUALIFIED,NOT_QUALIFIED,VERIFIED' %}
+            <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+                <form method="post" action="{% url 'admin_verify_round' round_id=r2.id %}" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                    {% csrf_token %}
+                    <div>
+                        <label class="form-label" style="font-size: 0.78rem; margin-bottom: 0.25rem;">Adjust / Confirm Score (/25)</label>
+                        <input type="number" step="0.5" name="score" value="{{ r2.score }}" class="form-control" style="width: 100px; padding: 0.45rem;">
+                    </div>
+                    <div style="flex-grow: 1;">
+                        <label class="form-label" style="font-size: 0.78rem; margin-bottom: 0.25rem;">Verification Remarks</label>
+                        <input type="text" name="remarks" value="{{ r2.verification_remarks }}" class="form-control" placeholder="Optional notes (e.g. Verified test cases and code structure)" style="padding: 0.45rem;">
+                    </div>
+                    <div style="align-self: flex-end;">
+                        <button type="submit" class="btn-cyber" style="background: linear-gradient(135deg, #10b981, #00f0ff); padding: 0.55rem 1.4rem;">
+                            <i class="fas fa-check-double"></i> Verify &amp; Unlock Round 3
+                        </button>
+                    </div>
+                </form>
+            </div>
+        {% endif %}
+
+        <!-- Submitted Code Viewer -->
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            {% for sub in r2_submissions %}
+                <div style="background: #090e1a; border: 1px solid var(--border-glass); border-radius: 8px; overflow: hidden;">
+                    <div style="padding: 0.6rem 1rem; background: #060a14; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                        <b style="color: #fff;">{{ sub.coding_challenge.title }}</b>
+                        <span style="color: #34d399; font-family: var(--font-mono);">
+                            Passed {{ sub.passed_test_cases }}/{{ sub.total_test_cases }} cases &bull; {{ sub.marks_awarded }} pts
+                        </span>
+                    </div>
+                    <pre style="padding: 1rem; margin: 0; font-family: var(--font-mono); font-size: 0.82rem; color: #e2e8f0; max-height: 180px; overflow-y: auto;">{{ sub.submitted_code }}</pre>
+                </div>
+            {% empty %}
+                <div style="color: var(--text-dim); text-align: center; padding: 1rem; font-size: 0.85rem;">No code submitted for Round 2.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Round 3 Review & Final Verification Section -->
+    <div class="glass-panel" style="padding: 1.75rem; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <span class="badge-cyber" style="border-color: #a855f7; color: #c084fc;">ROUND 3</span>
+                <h3 style="font-size: 1.25rem; color: #fff; margin: 0;">Logic Launch (Flowchart to Code)</h3>
+                <span class="badge-cyber" style="text-transform: uppercase;">{{ r3.selected_language|default:"Not selected" }}</span>
+            </div>
+            <div style="font-family: var(--font-mono); font-size: 1.15rem; font-weight: 700; color: #fff;">
+                Score: <span style="color: #c084fc;">{{ r3.score }}/30</span> &bull; Status: <b style="color: {% if r3.is_verified %}#34d399{% else %}#c084fc{% endif %};">{{ r3.status }}</b>
+            </div>
+        </div>
+
+        {% if r3 and r3.status in 'SUBMITTED,VERIFIED' %}
+            <div style="background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+                <form method="post" action="{% url 'admin_verify_round' round_id=r3.id %}" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                    {% csrf_token %}
+                    <div>
+                        <label class="form-label" style="font-size: 0.78rem; margin-bottom: 0.25rem;">Confirm Final Score (/30)</label>
+                        <input type="number" step="0.5" name="score" value="{{ r3.score }}" class="form-control" style="width: 100px; padding: 0.45rem;">
+                    </div>
+                    <div style="flex-grow: 1;">
+                        <label class="form-label" style="font-size: 0.78rem; margin-bottom: 0.25rem;">Remarks</label>
+                        <input type="text" name="remarks" value="{{ r3.verification_remarks }}" class="form-control" placeholder="Final verification approval notes" style="padding: 0.45rem;">
+                    </div>
+                    <div style="align-self: flex-end;">
+                        <button type="submit" class="btn-cyber" style="background: linear-gradient(135deg, #a855f7, #7928ca); padding: 0.55rem 1.4rem;">
+                            <i class="fas fa-trophy"></i> Verify Round 3 &amp; Finalize Result
+                        </button>
+                    </div>
+                </form>
+            </div>
+        {% endif %}
+
+        <!-- Submitted Flowchart Solutions -->
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            {% for sub in r3_submissions %}
+                <div style="background: #090e1a; border: 1px solid var(--border-glass); border-radius: 8px; overflow: hidden;">
+                    <div style="padding: 0.6rem 1rem; background: #060a14; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                        <b style="color: #fff;">{{ sub.flowchart_question.title }}</b>
+                        <span style="color: #c084fc; font-family: var(--font-mono);">
+                            Passed {{ sub.passed_test_cases }}/{{ sub.total_test_cases }} cases &bull; {{ sub.marks_awarded }} pts
+                        </span>
+                    </div>
+                    <pre style="padding: 1rem; margin: 0; font-family: var(--font-mono); font-size: 0.82rem; color: #e2e8f0; max-height: 180px; overflow-y: auto;">{{ sub.submitted_code }}</pre>
+                </div>
+            {% empty %}
+                <div style="color: var(--text-dim); text-align: center; padding: 1rem; font-size: 0.85rem;">No code submitted for Round 3 yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Tab Violations Detailed Log for this participant -->
+    <div class="glass-panel" style="padding: 1.75rem;">
+        <h3 style="font-size: 1.2rem; color: #fff; margin-bottom: 1rem;">
+            <i class="fas fa-history" style="color: #ef4444;"></i> Tab Switch &amp; Focus Loss History
+        </h3>
+        <table class="cyber-table">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Round Number</th>
+                    <th>Violation Sequence</th>
+                    <th>Event Type</th>
+                    <th>Audit Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in violations %}
+                    <tr>
+                        <td style="font-family: var(--font-mono); font-size: 0.85rem;">{{ v.timestamp|date:"Y-m-d H:i:s" }}</td>
+                        <td style="font-weight: 600; color: var(--cyber-cyan);">Round {{ v.round_number }}</td>
+                        <td style="font-family: var(--font-mono); color: #f87171;">#{{ v.violation_count }}</td>
+                        <td>{{ v.event_type }}</td>
+                        <td style="color: var(--text-muted); font-size: 0.85rem;">{{ v.details }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 1.5rem; color: #34d399;">
+                            <i class="fas fa-check-circle"></i> Clean Session: No tab switch violations logged for this contestant.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

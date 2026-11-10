@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+
+{% block title %}Participant Dashboard – {{ user.profile.full_name|default:user.username }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 1250px; margin: 2.5rem auto; padding: 0 1.5rem 5rem;">
+    <!-- Profile & Overview Banner -->
+    <div class="glass-panel" style="padding: 2.2rem 2.5rem; margin-bottom: 2.5rem; position: relative;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 1.5rem;">
+                <div style="width: 72px; height: 72px; border-radius: 16px; background: linear-gradient(135deg, var(--electric-blue), var(--cyber-cyan)); display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #fff; box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);">
+                    <i class="fas fa-terminal"></i>
+                </div>
+                <div>
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.25rem;">
+                        <h1 style="font-size: 1.85rem; font-weight: 800; color: #fff; margin: 0;">
+                            {{ user.profile.full_name|default:user.username }}
+                        </h1>
+                        <span class="badge-cyber">{{ user.profile.roll_number }}</span>
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.92rem; margin: 0;">
+                        <i class="fas fa-graduation-cap" style="color: var(--cyber-cyan);"></i> {{ user.profile.department }} &bull; {{ user.profile.year }}
+                    </p>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 2rem; align-items: center;">
+                <div style="text-align: right;">
+                    <div style="font-size: 0.78rem; color: var(--text-dim); text-transform: uppercase;">Total Score</div>
+                    <div style="font-size: 2.2rem; font-weight: 800; color: var(--cyber-cyan); font-family: var(--font-mono);">
+                        {{ total_score }} <span style="font-size: 1rem; color: var(--text-dim);">/ 70</span>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 0.78rem; color: var(--text-dim); text-transform: uppercase;">Violations Logged</div>
+                    <div style="font-size: 1.6rem; font-weight: 700; color: {% if violation_count > 0 %}#f59e0b{% else %}#34d399{% endif %}; font-family: var(--font-mono);">
+                        {{ violation_count }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Competition Completion Progress Bar -->
+        <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-glass);">
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.5rem;">
+                <span style="color: var(--text-muted); font-weight: 600;">Competition Pathway Completion</span>
+                <span style="color: var(--cyber-cyan); font-weight: 700; font-family: var(--font-mono);">{{ progress_percentage }}%</span>
+            </div>
+            <div style="width: 100%; height: 8px; background: rgba(0, 0, 0, 0.5); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.05);">
+                <div style="width: {{ progress_percentage }}%; height: 100%; background: linear-gradient(90deg, var(--electric-blue), var(--cyber-cyan)); box-shadow: 0 0 10px rgba(0, 240, 255, 0.6); transition: width 0.6s ease;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Action Bar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2 style="font-size: 1.45rem; font-weight: 700; color: #fff; margin: 0;">
+                Competition Rounds
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">
+                Complete challenges sequentially. Each round unlocks upon meeting the qualification criteria.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.85rem;">
+            <a href="{% url 'my_results' %}" class="btn-outline-cyber">
+                <i class="fas fa-file-invoice"></i> My Full Scorecard
+            </a>
+            <a href="{% url 'leaderboard' %}" class="btn-cyber">
+                <i class="fas fa-trophy"></i> Live Leaderboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Three Interactive Round Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.75rem;">
+        
+        <!-- ROUND 1 CARD -->
+        <div class="glass-panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                    <div style="display: flex; align-items: center; gap: 0.6rem;">
+                        <span class="badge-cyber">ROUND 1</span>
+                        <span class="badge-warning">MEDIUM</span>
+                    </div>
+                    {% if r1.status == 'QUALIFIED' %}
+                        <span class="badge-cyber badge-success"><i class="fas fa-check-circle"></i> QUALIFIED</span>
+                    {% elif r1.status == 'NOT_QUALIFIED' %}
+                        <span class="badge-cyber badge-danger"><i class="fas fa-times-circle"></i> NOT QUALIFIED</span>
+                    {% elif r1.status == 'IN_PROGRESS' %}
+                        <span class="badge-cyber badge-warning"><i class="fas fa-spinner fa-spin"></i> IN PROGRESS</span>
+                    {% else %}
+                        <span class="badge-cyber"><i class="fas fa-unlock"></i> READY</span>
+                    {% endif %}
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                    <div style="width: 48px; height: 48px; border-radius: 10px; background: rgba(0, 240, 255, 0.1); border: 1px solid var(--border-cyan); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: var(--cyber-cyan);">
+                        <i class="fas fa-list-ol"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.35rem; color: #fff; margin: 0;">Code Quest</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-dim); margin: 0;">Multiple Choice Questions</p>
+                    </div>
+                </div>
+
+                <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.55; margin-bottom: 1.5rem;">
+                    15 medium-difficulty MCQs covering programming fundamentals in C, Python, and Java. 1 minute per question.
+                </p>
+
+                <div style="background: rgba(10, 17, 40, 0.6); padding: 0.85rem 1.1rem; border-radius: 8px; border: 1px solid var(--border-glass); margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.85rem; color: var(--text-dim);">Score / Cutoff:</span>
+                    <span style="font-family: var(--font-mono); font-weight: 700; color: #fff; font-size: 1.05rem;">
+                        {{ r1.score|default:0 }}/15 <span style="font-size: 0.8rem; color: var(--text-dim);">(Req: {{ comp_settings.r1_qualifying_marks }})</span>
+                    </span>
+                </div>
+            </div>
+
+            <div>
+                {% if r1.status == 'UNLOCKED' %}
+                    <a href="{% url 'round1' %}" class="btn-cyber" style="width: 100%; justify-content: center;">
+                        <i class="fas fa-play"></i> Start Round 1
+                    </a>
+                {% elif r1.status == 'IN_PROGRESS' %}
+                    <a href="{% url 'round1' %}" class="btn-cyber" style="width: 100%; justify-content: center; background: linear-gradient(135deg, #f59e0b, #d97706);">
+                        <i class="fas fa-redo"></i> Resume Round 1
+                    </a>
+                {% else %}
+                    <button class="btn-outline-cyber" style="width: 100%; justify-content: center; opacity: 0.7; cursor: default;" disabled>
+                        <i class="fas fa-check"></i> Round 1 Completed
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ROUND 2 CARD -->
+        <div class="glass-panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                    <div style="display: flex; align-items: center; gap: 0.6rem;">
+                        <span class="badge-cyber">ROUND 2</span>
+                        <span class="badge-danger">HARD</span>
+                    </div>
+                    {% if r2.status == 'VERIFIED' %}
+                        <span class="badge-cyber badge-success"><i class="fas fa-check-circle"></i> VERIFIED</span>
+                    {% elif r2.status == 'UNDER_EVALUATION' or r2.status == 'SUBMITTED' %}
+                        <span class="badge-cyber badge-warning"><i class="fas fa-clock"></i> UNDER EVALUATION</span>
+                    {% elif r2.status == 'IN_PROGRESS' %}
+                        <span class="badge-cyber badge-warning"><i class="fas fa-spinner fa-spin"></i> IN PROGRESS</span>
+                    {% elif r2.status == 'UNLOCKED' %}
+                        <span class="badge-cyber"><i class="fas fa-unlock"></i> UNLOCKED</span>
+                    {% elif r2.status == 'NOT_QUALIFIED' %}
+                        <span class="badge-cyber badge-danger"><i class="fas fa-times-circle"></i> NOT QUALIFIED</span>
+                    {% else %}
+                        <span class="badge-locked"><i class="fas fa-lock"></i> LOCKED</span>
+                    {% endif %}
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                    <div style="width: 48px; height: 48px; border-radius: 10px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #f59e0b;">
+                        <i class="fas fa-bug"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.35rem; color: #fff; margin: 0;">Bug Bounty</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-dim); margin: 0;">Error Line Debugging</p>
+                    </div>
+                </div>
+
+                <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.55; margin-bottom: 1.5rem;">
+                    Detect and fix intentional defects in C, Python, or Java. 5 problems with 5 minutes each. Requires Round 1 qualification.
+                </p>
+
+                <div style="background: rgba(10, 17, 40, 0.6); padding: 0.85rem 1.1rem; border-radius: 8px; border: 1px solid var(--border-glass); margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.85rem; color: var(--text-dim);">Score / Cutoff:</span>
+                    <span style="font-family: var(--font-mono); font-weight: 700; color: #fff; font-size: 1.05rem;">
+                        {{ r2.score|default:0 }}/25 <span style="font-size: 0.8rem; color: var(--text-dim);">(Req: {{ comp_settings.r2_qualifying_marks }})</span>
+                    </span>
+                </div>
+            </div>
+
+            <div>
+                {% if r2.status == 'UNLOCKED' %}
+                    <a href="{% url 'round2' %}" class="btn-cyber" style="width: 100%; justify-content: center; background: linear-gradient(135deg, #f59e0b, #d97706);">
+                        <i class="fas fa-play"></i> Start Round 2
+                    </a>
+                {% elif r2.status == 'IN_PROGRESS' %}
+                    <a href="{% url 'round2' %}" class="btn-cyber" style="width: 100%; justify-content: center; background: linear-gradient(135deg, #f59e0b, #d97706);">
+                        <i class="fas fa-redo"></i> Resume Round 2
+                    </a>
+                {% elif r2.status == 'UNDER_EVALUATION' or r2.status == 'SUBMITTED' %}
+                    <button class="btn-outline-cyber" style="width: 100%; justify-content: center; color: #fbbf24; border-color: #fbbf24; cursor: default;" disabled>
+                        <i class="fas fa-hourglass-half"></i> Under Admin Verification
+                    </button>
+                {% elif r2.status == 'VERIFIED' %}
+                    <button class="btn-outline-cyber" style="width: 100%; justify-content: center; opacity: 0.7; cursor: default;" disabled>
+                        <i class="fas fa-check-double"></i> Verified by Admin
+                    </button>
+                {% else %}
+                    <div style="text-align: center; padding: 0.6rem; background: rgba(0,0,0,0.3); border-radius: 8px; font-size: 0.82rem; color: #94a3b8;">
+                        <i class="fas fa-lock"></i> Unlocks when Round 1 score &ge; {{ comp_settings.r1_qualifying_marks }}/15
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ROUND 3 CARD -->
+        <div class="glass-panel" style="padding: 2rem; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                    <div style="display: flex; align-items: center; gap: 0.6rem;">
+                        <span class="badge-cyber">ROUND 3</span>
+                        <span class="badge-danger" style="background: rgba(168, 85, 247, 0.15); border-color: #a855f7; color: #c084fc;">VERY HARD</span>
+                    </div>
+                    {% if r3.status == 'VERIFIED' %}
+                        <span class="badge-cyber badge-success"><i class="fas fa-trophy"></i> COMPLETED</span>
+                    {% elif r3.status == 'SUBMITTED' %}
+                        <span class="badge-cyber badge-warning"><i class="fas fa-clock"></i> SUBMITTED</span>
+                    {% elif r3.status == 'IN_PROGRESS' %}
+                        <span class="badge-cyber badge-warning"><i class="fas fa-spinner fa-spin"></i> IN PROGRESS</span>
+                    {% elif r3.status == 'UNLOCKED' %}
+                        <span class="badge-cyber"><i class="fas fa-unlock"></i> UNLOCKED</span>
+                    {% else %}
+                        <span class="badge-locked"><i class="fas fa-lock"></i> LOCKED</span>
+                    {% endif %}
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                    <div style="width: 48px; height: 48px; border-radius: 10px; background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.3); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #c084fc;">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.35rem; color: #fff; margin: 0;">Logic Launch</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-dim); margin: 0;">Flowchart to Executable Code</p>
+                    </div>
+                </div>
+
+                <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.55; margin-bottom: 1.5rem;">
+                    Synthesize visual algorithmic flowcharts into clean programs. 3 problems with 10 minutes each.
+                </p>
+
+                <div style="background: rgba(10, 17, 40, 0.6); padding: 0.85rem 1.1rem; border-radius: 8px; border: 1px solid var(--border-glass); margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.85rem; color: var(--text-dim);">Final Round Score:</span>
+                    <span style="font-family: var(--font-mono); font-weight: 700; color: #c084fc; font-size: 1.05rem;">
+                        {{ r3.score|default:0 }}/30
+                    </span>
+                </div>
+            </div>
+
+            <div>
+                {% if r3.status == 'UNLOCKED' %}
+                    <a href="{% url 'round3' %}" class="btn-cyber" style="width: 100%; justify-content: center; background: linear-gradient(135deg, #a855f7, #7928ca);">
+                        <i class="fas fa-play"></i> Launch Round 3
+                    </a>
+                {% elif r3.status == 'IN_PROGRESS' %}
+                    <a href="{% url 'round3' %}" class="btn-cyber" style="width: 100%; justify-content: center; background: linear-gradient(135deg, #a855f7, #7928ca);">
+                        <i class="fas fa-redo"></i> Resume Round 3
+                    </a>
+                {% elif r3.status == 'SUBMITTED' or r3.status == 'VERIFIED' %}
+                    <button class="btn-outline-cyber" style="width: 100%; justify-content: center; opacity: 0.7; cursor: default;" disabled>
+                        <i class="fas fa-check-circle"></i> Round 3 Completed
+                    </button>
+                {% else %}
+                    <div style="text-align: center; padding: 0.6rem; background: rgba(0,0,0,0.3); border-radius: 8px; font-size: 0.82rem; color: #94a3b8;">
+                        <i class="fas fa-lock"></i> Unlocks after Round 2 is evaluated &amp; verified by Admin
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
